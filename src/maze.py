@@ -1,41 +1,66 @@
 import time
+import random
 
 from cell import Cell
 
 
 class Maze():
-    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, window):
+    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, window=None, seed=None):
         self.__x1 = x1
         self.__y1 = y1
         self.__num_rows = num_rows
         self.__num_cols = num_cols
         self.__cell_size_x = cell_size_x
         self.__cell_size_y = cell_size_y
-        self.__window = window
 
-        self.__cells = []
+        self.__window = window
+        
+        if seed is not None:
+            random.seed(seed)
+
+        self._cells = []
         self.__create_cells()
+        self.__break_entrance_and_exit()
+        self.__break_walls_recursive(0, 0)
 
     def __create_cells(self):
         for col_index in range(self.__num_cols):
             col = []
             for row_index in range(self.__num_rows):
                 col.append(Cell(self.__window))
-            self.__cells.append(col)
+            self._cells.append(col)
 
         for col_index in range(self.__num_cols):
             for row_index in range(self.__num_rows):
                 self.__draw_cell(col_index, row_index)
 
-    def __draw_cell(self, colIndex, rowIndex):
-        x1 = self.__x1 + (colIndex * self.__cell_size_x)
-        x2 = self.__x1 + ((colIndex + 1) * self.__cell_size_x)
-        y1 = self.__y1 + (rowIndex * self.__cell_size_y)
-        y2 = self.__y1 + ((rowIndex + 1) * self.__cell_size_y)
+    def __draw_cell(self, col_index, row_index):
+        if self.__window is None:
+            return
 
-        self.__cells[colIndex][rowIndex].draw(x1, y1, x2, y2)
+        x1 = self.__x1 + (col_index * self.__cell_size_x)
+        x2 = self.__x1 + ((col_index + 1) * self.__cell_size_x)
+        y1 = self.__y1 + (row_index * self.__cell_size_y)
+        y2 = self.__y1 + ((row_index + 1) * self.__cell_size_y)
+
+        self._cells[col_index][row_index].draw(x1, y1, x2, y2)
         self.__animate()
 
     def __animate(self):
+        if self.__window is None:
+            return
+        
         self.__window.redraw()
         time.sleep(0.05)
+
+    def __break_entrance_and_exit(self):
+        self._cells[0][0].has_top_wall = False
+        self.__draw_cell(0, 0)
+        self._cells[self.__num_cols - 1][self.__num_rows - 1].has_bottom_wall = False
+        self.__draw_cell(self.__num_cols - 1, self.__num_rows - 1)
+
+    def __break_walls_recursive(self, col_index, row_index):
+        self._cells[col_index][row_index].__visited = True
+        while True:
+            cells_to_visit = []
+            return
