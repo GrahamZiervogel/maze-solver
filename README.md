@@ -1,2 +1,2 @@
 # maze-solver
-Generate, render and solve mazes
+Generate, render, and solve mazes

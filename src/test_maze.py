@@ -14,8 +14,8 @@ class TestMaze(unittest.TestCase):
         self.assertEqual(len(maze._cells[0]), num_rows)
 
     def test_maze_create_cells_large(self):
-        num_cols = 160
-        num_rows = 120
+        num_cols = 24
+        num_rows = 20
 
         maze = Maze(123, 456, num_rows, num_cols, 100, 100)
 

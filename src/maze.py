@@ -60,7 +60,37 @@ class Maze():
         self.__draw_cell(self.__num_cols - 1, self.__num_rows - 1)
 
     def __break_walls_recursive(self, col_index, row_index):
-        self._cells[col_index][row_index].__visited = True
+        self._cells[col_index][row_index]._visited = True
         while True:
             cells_to_visit = []
-            return
+
+            if col_index > 0 and not self._cells[col_index - 1][row_index]._visited:
+                cells_to_visit.append((col_index - 1, row_index))
+            if col_index < (self.__num_cols - 1) and not self._cells[col_index + 1][row_index]._visited:
+                cells_to_visit.append((col_index + 1, row_index))
+            if row_index > 0 and not self._cells[col_index][row_index - 1]._visited:
+                cells_to_visit.append((col_index, row_index - 1))
+            if row_index < (self.__num_rows - 1) and not self._cells[col_index][row_index + 1]._visited:
+                cells_to_visit.append((col_index, row_index + 1))
+
+            if len(cells_to_visit) == 0:
+                self.__draw_cell(col_index, row_index)
+                return
+
+            dir_index = random.randrange(len(cells_to_visit))
+            visit_indexes = cells_to_visit[dir_index]
+
+            if visit_indexes[0] == col_index - 1:
+                self._cells[col_index][row_index].has_top_wall = False
+                self._cells[visit_indexes[0]][visit_indexes[1]].has_bottom_wall = False
+            if visit_indexes[0] == col_index + 1:
+                self._cells[col_index][row_index].has_bottom_wall = False
+                self._cells[visit_indexes[0]][visit_indexes[1]].has_top_wall = False
+            if visit_indexes[1] == row_index - 1:
+                self._cells[col_index][row_index].has_left_wall = False
+                self._cells[visit_indexes[0]][visit_indexes[1]].has_right_wall = False
+            if visit_indexes[1] == row_index + 1:
+                self._cells[col_index][row_index].has_right_wall = False
+                self._cells[visit_indexes[0]][visit_indexes[1]].has_left_wall = False              
+
+            self.__break_walls_recursive(visit_indexes[0], visit_indexes[1])
