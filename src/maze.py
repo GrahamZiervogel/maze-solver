@@ -22,6 +22,7 @@ class Maze():
         self.__create_cells()
         self.__break_entrance_and_exit()
         self.__break_walls_recursive(0, 0)
+        self.__reset_cells_visited()
 
     def __create_cells(self):
         for col_index in range(self.__num_cols):
@@ -81,16 +82,78 @@ class Maze():
             visit_indexes = cells_to_visit[dir_index]
 
             if visit_indexes[0] == col_index - 1:
-                self._cells[col_index][row_index].has_top_wall = False
-                self._cells[visit_indexes[0]][visit_indexes[1]].has_bottom_wall = False
-            if visit_indexes[0] == col_index + 1:
-                self._cells[col_index][row_index].has_bottom_wall = False
-                self._cells[visit_indexes[0]][visit_indexes[1]].has_top_wall = False
-            if visit_indexes[1] == row_index - 1:
                 self._cells[col_index][row_index].has_left_wall = False
                 self._cells[visit_indexes[0]][visit_indexes[1]].has_right_wall = False
-            if visit_indexes[1] == row_index + 1:
+            if visit_indexes[0] == col_index + 1:
                 self._cells[col_index][row_index].has_right_wall = False
-                self._cells[visit_indexes[0]][visit_indexes[1]].has_left_wall = False              
+                self._cells[visit_indexes[0]][visit_indexes[1]].has_left_wall = False
+            if visit_indexes[1] == row_index - 1:
+                self._cells[col_index][row_index].has_top_wall = False
+                self._cells[visit_indexes[0]][visit_indexes[1]].has_bottom_wall = False
+            if visit_indexes[1] == row_index + 1:
+                self._cells[col_index][row_index].has_bottom_wall = False
+                self._cells[visit_indexes[0]][visit_indexes[1]].has_top_wall = False              
 
             self.__break_walls_recursive(visit_indexes[0], visit_indexes[1])
+
+    def __reset_cells_visited(self):
+        for col in self._cells:
+            for cell in col:
+                cell._visited = False
+
+    def solve(self):
+        return self.__solve_recursive(0, 0)
+    
+    def __solve_recursive(self, col_index, row_index):
+        self.__animate()
+        self._cells[col_index][row_index]._visited = True
+
+        if col_index == (self.__num_cols - 1) and row_index == (self.__num_rows - 1):
+            return True
+
+        if (col_index > 0 and
+            not self._cells[col_index][row_index].has_left_wall and
+            not self._cells[col_index - 1][row_index]._visited):
+
+            self._cells[col_index][row_index].draw_move(self._cells[col_index - 1][row_index])
+
+            if self.__solve_recursive(col_index - 1, row_index):
+                return True
+            else:
+                self._cells[col_index][row_index].draw_move(self._cells[col_index - 1][row_index], undo=True)
+
+        if (col_index < (self.__num_cols - 1) and
+            not self._cells[col_index][row_index].has_right_wall and
+            not self._cells[col_index + 1][row_index]._visited):
+
+            self._cells[col_index][row_index].draw_move(self._cells[col_index + 1][row_index])
+
+            if self.__solve_recursive(col_index + 1, row_index):
+                return True
+            else:
+                self._cells[col_index][row_index].draw_move(self._cells[col_index + 1][row_index], undo=True)
+
+        if (row_index > 0 and
+            not self._cells[col_index][row_index].has_top_wall and
+            not self._cells[col_index][row_index - 1]._visited):
+
+            self._cells[col_index][row_index].draw_move(self._cells[col_index][row_index - 1])
+
+            if self.__solve_recursive(col_index, row_index - 1):
+                return True
+            else:
+                self._cells[col_index][row_index].draw_move(self._cells[col_index][row_index - 1], undo=True)
+
+        if (row_index < (self.__num_rows - 1) and
+            not self._cells[col_index][row_index].has_bottom_wall and
+            not self._cells[col_index][row_index + 1]._visited):
+
+            self._cells[col_index][row_index].draw_move(self._cells[col_index][row_index + 1])
+
+            if self.__solve_recursive(col_index, row_index + 1):
+                return True
+            else:
+                self._cells[col_index][row_index].draw_move(self._cells[col_index][row_index + 1], undo=True)
+
+        return False
+    
